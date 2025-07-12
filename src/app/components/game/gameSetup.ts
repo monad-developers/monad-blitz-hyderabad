@@ -1,6 +1,6 @@
 import kaboom from "kaboom";
 
-export function initializeKaboom(canvas: HTMLCanvasElement) {
+export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (state: any) => void) {
   // Initialize Kaboom
   const k = kaboom({
     canvas: canvas,
@@ -50,6 +50,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
     // Game state variables
     let score = 0;
     let coins = 0;
+    let lives = 3;
     let doublePointsActive = false;
     let doublePointsTimer = 0;
     let ghostModeActive = false;
@@ -60,8 +61,48 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
     let itemSpawnTimer = 0; // Timer for coordinated item spawning
     let gameStarted = false; // Track if game has started (first pipe spawned)
     let lastItemSpawnTime = 0; // Track when last item was spawned
+    let showReadyUI = true; // Track if ready UI should be shown
     const basePipeSpawnInterval = 1.2; // Reduced from 1.5 for faster pipe spawning
     const itemSpawnInterval = 0.5; // Reduced interval between item spawns
+
+    // Update React state function
+    const updateState = () => {
+      if (updateGameState) {
+        updateGameState({
+          score,
+          coins,
+          lives,
+          doublePoints: doublePointsActive,
+          doublePointsTimer,
+          ghostMode: ghostModeActive,
+          ghostModeTimer,
+          gameOver: false,
+          gameStarted,
+          showReadyUI
+        });
+      }
+    };
+
+    // Initial state update
+    updateState();
+
+    // Handle death function
+    function handleDeath() {
+      k.play("hit");
+      lives--;
+      updateState();
+      
+      if (lives <= 0) {
+        // Game over - all lives lost
+        k.go("lose", { score, coins });
+      } else {
+        // Reset bird position and continue
+        bird.pos.x = k.width() / 4;
+        bird.pos.y = k.height() / 2;
+        bird.vel.x = 0;
+        bird.vel.y = 0;
+      }
+    }
 
     // Add scrolling background
     k.add([
@@ -127,115 +168,54 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
     // Check for death
     bird.onUpdate(() => {
       if (bird.pos.y >= k.height() - 100 || bird.pos.y <= CEILING) {
-        k.go("lose", { score, coins });
-        k.play("hit");
+        handleDeath();
       }
     });
 
     // Jump controls
     k.onKeyPress("space", () => {
+      if (showReadyUI) {
+        showReadyUI = false;
+        updateState();
+      }
       bird.jump(JUMP_FORCE);
       k.play("jump");
     });
 
     k.onClick(() => {
+      if (showReadyUI) {
+        showReadyUI = false;
+        updateState();
+      }
       bird.jump(JUMP_FORCE);
       k.play("jump");
     });
 
-    // UI Elements - Score hidden as requested
-    const scoreLabel = k.add([
-      k.text("", { size: 24, font: "monospace" }),
-      k.anchor("topright"),
-      k.pos(k.width() - 20, 20),
-      k.fixed(),
-      k.z(100),
-      k.color(255, 255, 255),
-      k.outline(2, k.BLACK),
-    ]);
-
-    const coinLabel = k.add([
-      k.text(`Coins: ${coins}`, { size: 24, font: "monospace" }),
-      k.anchor("topleft"),
-      k.pos(20, 20),
-      k.fixed(),
-      k.z(100),
-      k.color(255, 215, 0),
-      k.outline(2, k.BLACK),
-    ]);
-
-    const doublePointsLabel = k.add([
-      k.text("", { size: 20, font: "monospace" }),
-      k.anchor("topleft"),
-      k.pos(20, 50),
-      k.fixed(),
-      k.z(100),
-      k.color(255, 100, 255),
-      k.outline(2, k.BLACK),
-    ]);
-
-    const ghostModeLabel = k.add([
-      k.text("", { size: 20, font: "monospace" }),
-      k.anchor("topleft"),
-      k.pos(20, 80),
-      k.fixed(),
-      k.z(100),
-      k.color(150, 255, 150),
-      k.outline(2, k.BLACK),
-    ]);
-
-    // Speed indicator - Hidden as requested
-    const speedLabel = k.add([
-      k.text("", { size: 18, font: "monospace" }),
-      k.anchor("topleft"),
-      k.pos(20, 110),
-      k.fixed(),
-      k.z(100),
-      k.color(255, 255, 100),
-      k.outline(2, k.BLACK),
-    ]);
-
-    // Straight line stage indicator
-    const stageLabel = k.add([
-      k.text("", { size: 16, font: "monospace" }),
-      k.anchor("topleft"),
-      k.pos(20, 140),
-      k.fixed(),
-      k.z(100),
-      k.color(255, 100, 100),
-      k.outline(2, k.BLACK),
-    ]);
+    // UI Elements removed - using React overlay instead
 
     // Power-up timers update
     k.onUpdate(() => {
       // Double points timer
       if (doublePointsActive) {
         doublePointsTimer -= k.dt();
-        doublePointsLabel.text = `Double Points: ${Math.ceil(doublePointsTimer)}s`;
         if (doublePointsTimer <= 0) {
           doublePointsActive = false;
-          doublePointsLabel.text = "";
         }
       }
 
       // Ghost mode timer
       if (ghostModeActive) {
         ghostModeTimer -= k.dt();
-        ghostModeLabel.text = `Ghost Mode: ${Math.ceil(ghostModeTimer)}s`;
         // Make bird semi-transparent during ghost mode
         bird.opacity = 0.6;
         if (ghostModeTimer <= 0) {
           ghostModeActive = false;
-          ghostModeLabel.text = "";
           bird.opacity = 1;
         }
       }
 
-      // Speed display hidden as requested
-      speedLabel.text = "";
-      
-      // Update stage display
-      stageLabel.text = "";
+      // Update React state
+      updateState();
     });
 
     // Track current pipe gap for safe spawning
@@ -349,6 +329,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       if (!gameStarted) {
         gameStarted = true;
         lastItemSpawnTime = k.time(); // Initialize item spawn timer
+        updateState();
       }
       
       // Check if we should start straight line stage
@@ -417,7 +398,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       coin.destroy();
       const coinValue = doublePointsActive ? 2 : 1;
       coins += coinValue;
-      coinLabel.text = `Coins: ${coins}`;
+      updateState();
       k.play("score");
     });
 
@@ -426,6 +407,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       mushroom.destroy();
       doublePointsActive = true;
       doublePointsTimer = 3; // Reduced from 5 seconds to 3 seconds
+      updateState();
       k.play("score");
     });
 
@@ -434,14 +416,14 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       ghostiny.destroy();
       ghostModeActive = true;
       ghostModeTimer = 3; // Reduced from 5 seconds to 3 seconds
+      updateState();
       k.play("score");
     });
 
     // Pipe collision (only if not in ghost mode)
     bird.onCollide("pipe", () => {
       if (!ghostModeActive) {
-        k.go("lose", { score, coins });
-        k.play("hit");
+        handleDeath();
       }
     });
 
@@ -455,7 +437,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
 
     function addScore() {
       score++;
-      scoreLabel.text = ""; // Score hidden as requested
+      updateState();
       k.play("score");
       
       // Increase speed after every SPEED_INCREASE_THRESHOLD pipes
@@ -475,6 +457,22 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
 
   // Lose scene
   k.scene("lose", (gameData: { score: number; coins: number }) => {
+    // Update React state to show game over
+    if (updateGameState) {
+      updateGameState({
+        score: gameData.score,
+        coins: gameData.coins,
+        lives: 0,
+        doublePoints: false,
+        doublePointsTimer: 0,
+        ghostMode: false,
+        ghostModeTimer: 0,
+        gameOver: true,
+        gameStarted: true,
+        showReadyUI: false
+      });
+    }
+
     k.add([
       k.sprite("background"),
       k.pos(0, 0),
@@ -488,43 +486,29 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       k.scale(2.5, 1),
     ]);
 
-    k.add([
-      k.sprite("gameover"),
-      k.pos(k.width() / 2, k.height() / 2 - 100),
-      k.scale(2),
-      k.anchor("center"),
-    ]);
-
-    k.add([
-      k.text(`Score: ${gameData.score}`, { size: 32, font: "monospace" }),
-      k.pos(k.width() / 2, k.height() / 2),
-      k.anchor("center"),
-      k.color(255, 255, 255),
-      k.outline(2, k.BLACK),
-    ]);
-
-    k.add([
-      k.text(`Coins: ${gameData.coins}`, { size: 24, font: "monospace" }),
-      k.pos(k.width() / 2, k.height() / 2 + 40),
-      k.anchor("center"),
-      k.color(255, 215, 0),
-      k.outline(2, k.BLACK),
-    ]);
-
-    k.add([
-      k.text("Press SPACE or Click to Play Again", { size: 20, font: "monospace" }),
-      k.pos(k.width() / 2, k.height() / 2 + 80),
-      k.anchor("center"),
-      k.color(255, 255, 255),
-      k.outline(1, k.BLACK),
-    ]);
-
+    // Game over handled by React overlay now
     k.onKeyPress("space", () => k.go("game"));
     k.onClick(() => k.go("game"));
   });
 
   // Start scene
   k.scene("start", () => {
+    // Update React state for start screen
+    if (updateGameState) {
+      updateGameState({
+        score: 0,
+        coins: 0,
+        lives: 3,
+        doublePoints: false,
+        doublePointsTimer: 0,
+        ghostMode: false,
+        ghostModeTimer: 0,
+        gameOver: false,
+        gameStarted: false,
+        showReadyUI: true
+      });
+    }
+
     k.add([
       k.sprite("background"),
       k.pos(0, 0),
@@ -538,38 +522,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       k.scale(2.5, 1),
     ]);
 
-    k.add([
-      k.text("FLAPPY BIRD", { size: 48, font: "monospace" }),
-      k.pos(k.width() / 2, k.height() / 2 - 100),
-      k.anchor("center"),
-      k.color(255, 255, 255),
-      k.outline(3, k.BLACK),
-    ]);
-
-    k.add([
-      k.text("Press SPACE or Click to Start", { size: 24, font: "monospace" }),
-      k.pos(k.width() / 2, k.height() / 2),
-      k.anchor("center"),
-      k.color(255, 255, 255),
-      k.outline(2, k.BLACK),
-    ]);
-
-    // Animated bird
-    const menuBird = k.add([
-      k.sprite("bird"),
-      k.pos(k.width() / 2, k.height() / 2 + 50),
-      k.anchor("center"),
-      k.scale(0.05),
-    ]);
-
-    // Make bird bounce up and down
-    let bounceDir = -1;
-    k.onUpdate(() => {
-      menuBird.pos.y += bounceDir * 30 * k.dt();
-      if (menuBird.pos.y <= k.height() / 2 + 30) bounceDir = 1;
-      if (menuBird.pos.y >= k.height() / 2 + 70) bounceDir = -1;
-    });
-
+    // Start screen handled by React overlay now
     k.onKeyPress("space", () => k.go("game"));
     k.onClick(() => k.go("game"));
   });
