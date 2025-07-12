@@ -10,6 +10,7 @@ export default function FlappyBirdGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { wallet, sendTokens, isLoading: web3Loading, error: web3Error } = useWeb3();
   const [showWalletConnect, setShowWalletConnect] = useState(false);
+  const [isGameLoaded, setIsGameLoaded] = useState(false);
   const [redemptionStatus, setRedemptionStatus] = useState<{
     isRedeeming: boolean;
     success: boolean;
@@ -36,9 +37,22 @@ export default function FlappyBirdGame() {
   useEffect(() => {
     if (!canvasRef.current) return;
 
-    const cleanup = initializeKaboom(canvasRef.current, setGameState);
+    let cleanup: (() => void) | undefined;
 
-    return cleanup;
+    // Add a small delay to ensure the canvas is fully rendered
+    const initTimer = setTimeout(() => {
+      if (canvasRef.current) {
+        cleanup = initializeKaboom(canvasRef.current, setGameState);
+        setIsGameLoaded(true);
+      }
+    }, 100);
+
+    return () => {
+      clearTimeout(initTimer);
+      if (cleanup) {
+        cleanup();
+      }
+    };
   }, []);
 
   const handleRedeemCoins = async () => {
@@ -106,6 +120,18 @@ export default function FlappyBirdGame() {
 
   return (
     <div className="w-screen h-screen relative overflow-hidden bg-black">
+      {/* Loading Screen */}
+      {!isGameLoaded && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black z-50">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-16 w-16 border-b-2 border-white mb-4"></div>
+            <div className="text-white text-xl font-mono" style={{ textShadow: "2px 2px 0px #000" }}>
+              LOADING GAME...
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Game Canvas */}
       <canvas 
         ref={canvasRef}

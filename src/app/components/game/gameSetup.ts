@@ -1,6 +1,11 @@
 import kaboom from "kaboom";
 
 export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (state: any) => void) {
+  // Ensure canvas is ready
+  if (!canvas || !canvas.getContext) {
+    throw new Error("Canvas is not ready");
+  }
+
   // Initialize Kaboom
   const k = kaboom({
     canvas: canvas,
@@ -14,25 +19,29 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
     pixelDensity: 1,
   });
 
-  // Load sprites
-  k.loadSprite("background", "/sprites/background-day.png");
-  k.loadSprite("bird", "/sprites/yellowbird-midflap.png");
-  k.loadSprite("bird-up", "/sprites/yellowbird-upflap.png");
-  k.loadSprite("bird-down", "/sprites/yellowbird-downflap.png");
-  k.loadSprite("pipe", "/sprites/pipe-green.png");
-  k.loadSprite("base", "/sprites/base.png");
-  k.loadSprite("gameover", "/sprites/gameover.png");
-  k.loadSprite("monad-cat", "/sprites/monad-cat.png");
-  // Load power-up sprites
-  k.loadSprite("coin", "/sprites/Monad Logo - Default - Logo Mark.png");
-  k.loadSprite("mushroom", "/sprites/Mushroom from KAPLAY Wiki.png");
-  k.loadSprite("ghostiny", "/sprites/Ghostiny from KAPLAY Crew Wiki.png");
+  // Load sprites with error handling
+  try {
+    k.loadSprite("background", "/sprites/background-day.png");
+    k.loadSprite("bird", "/sprites/yellowbird-midflap.png");
+    k.loadSprite("bird-up", "/sprites/yellowbird-upflap.png");
+    k.loadSprite("bird-down", "/sprites/yellowbird-downflap.png");
+    k.loadSprite("pipe", "/sprites/pipe-green.png");
+    k.loadSprite("base", "/sprites/base.png");
+    k.loadSprite("gameover", "/sprites/gameover.png");
+    k.loadSprite("monad-cat", "/sprites/monad-cat.png");
+    // Load power-up sprites
+    k.loadSprite("coin", "/sprites/Monad Logo - Default - Logo Mark.png");
+    k.loadSprite("mushroom", "/sprites/Mushroom from KAPLAY Wiki.png");
+    k.loadSprite("ghostiny", "/sprites/Ghostiny from KAPLAY Crew Wiki.png");
 
-  // Load sounds
-  k.loadSound("jump", "/audio/wing.wav");
-  k.loadSound("score", "/audio/point.wav");
-  k.loadSound("hit", "/audio/hit.wav");
-  k.loadSound("die", "/audio/die.wav");
+    // Load sounds with error handling
+    k.loadSound("jump", "/audio/wing.wav");
+    k.loadSound("score", "/audio/point.wav");
+    k.loadSound("hit", "/audio/hit.wav");
+    k.loadSound("die", "/audio/die.wav");
+  } catch (error) {
+    console.warn("Some resources failed to load:", error);
+  }
 
   // Set gravity
   k.setGravity(1000); // Increased from 800 to make bird fall faster
