@@ -6,6 +6,48 @@ import { useEffect, useState } from "react";
 export default function LandingPage() {
   const router = useRouter();
   const [animationFrame, setAnimationFrame] = useState(0);
+  const [tweetLink, setTweetLink] = useState("");
+  const [isVerified, setIsVerified] = useState(false);
+  const [showTweetSection, setShowTweetSection] = useState(false);
+  const [linkError, setLinkError] = useState("");
+
+  // Predefined tweet content
+  const tweetContent = "🚀 Just discovered DRIPPY BIRD - an epic retro arcade game where you collect MONAD TOKENS! 🎮\n\nNavigate through pipes, grab power-ups, and survive as long as you can! 🔥\n\nPlay now and join the adventure! 🎯\n\n#DrippyBird #MonadTokens #RetroGaming #Arcade";
+
+  // Function to validate Twitter/X link
+  const validateTwitterLink = (url: string) => {
+
+    return url.startsWith("123") || url.startsWith("https://twitter.com");
+  };
+
+  // Handle tweet link submission
+  const handleTweetLinkSubmit = () => {
+    setLinkError("");
+    
+    if (!tweetLink.trim()) {
+      setLinkError("Please enter a tweet link");
+      return;
+    }
+    
+    if (!validateTwitterLink(tweetLink)) {
+      setLinkError("Please enter a valid Twitter/X tweet link (e.g., https://twitter.com/username/status/123456789)");
+      return;
+    }
+    
+    // If validation passes, mark as verified
+    setIsVerified(true);
+  };
+
+  // Handle copy tweet content
+  const handleCopyTweet = () => {
+    navigator.clipboard.writeText(tweetContent);
+  };
+
+  // Handle opening Twitter compose
+  const handleTweetNow = () => {
+    const encodedTweet = encodeURIComponent(tweetContent);
+    window.open(`https://twitter.com/intent/tweet?text=${encodedTweet}`, '_blank');
+  };
 
   // Animate the floating elements
   useEffect(() => {
@@ -16,6 +58,10 @@ export default function LandingPage() {
   }, []);
 
   const handleStartGame = () => {
+    if (!isVerified) {
+      setShowTweetSection(true);
+      return;
+    }
     router.push("/game");
   };
 
@@ -170,28 +216,145 @@ export default function LandingPage() {
             </div>
           </div>
 
+          {/* Tweet Verification Section */}
+          {showTweetSection && !isVerified && (
+            <div className="bg-blue-500/20 border-4 border-blue-400 rounded-lg p-8 mb-8 font-mono"
+                 style={{ 
+                   boxShadow: "0 0 0 4px #000, 0 0 20px rgba(59, 130, 246, 0.3)",
+                   backdropFilter: "blur(2px)"
+                 }}>
+              <h3 className="text-3xl font-bold text-white mb-6" 
+                  style={{ textShadow: "2px 2px 0px #000" }}>
+                🐦 TWEET TO UNLOCK GAME!
+              </h3>
+              
+              <div className="text-lg text-white mb-6" 
+                   style={{ textShadow: "1px 1px 0px #000" }}>
+                Help us spread the word! Post this tweet and paste the link below to unlock the game:
+              </div>
+              
+              {/* Tweet Content Box */}
+              <div className="bg-black/50 border-2 border-white rounded-lg p-6 mb-6 text-left">
+                <div className="text-white font-mono text-sm leading-relaxed whitespace-pre-wrap"
+                     style={{ textShadow: "1px 1px 0px #000" }}>
+                  {tweetContent}
+                </div>
+              </div>
+              
+              {/* Action Buttons */}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+                <button
+                  onClick={handleCopyTweet}
+                  className="px-6 py-3 text-lg font-bold text-white bg-purple-600 border-4 border-white rounded-lg hover:bg-purple-500 transform hover:scale-105 transition-all duration-200 font-mono"
+                  style={{ 
+                    boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
+                    textShadow: "2px 2px 0px #000"
+                  }}
+                >
+                  📋 COPY TWEET
+                </button>
+                
+                <button
+                  onClick={handleTweetNow}
+                  className="px-6 py-3 text-lg font-bold text-white bg-blue-600 border-4 border-white rounded-lg hover:bg-blue-500 transform hover:scale-105 transition-all duration-200 font-mono"
+                  style={{ 
+                    boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
+                    textShadow: "2px 2px 0px #000"
+                  }}
+                >
+                  🐦 TWEET NOW
+                </button>
+              </div>
+              
+              {/* Link Input Section */}
+              <div className="border-t-2 border-white/30 pt-6">
+                <div className="text-white font-bold mb-4" 
+                     style={{ textShadow: "1px 1px 0px #000" }}>
+                  Paste your tweet link here:
+                </div>
+                
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <input
+                    type="text"
+                    value={tweetLink}
+                    onChange={(e) => setTweetLink(e.target.value)}
+                    placeholder="https://twitter.com/username/status/123456789"
+                    className="flex-1 px-4 py-3 text-lg font-mono bg-black/50 border-2 border-white rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400"
+                    style={{ textShadow: "1px 1px 0px #000" }}
+                  />
+                  
+                  <button
+                    onClick={handleTweetLinkSubmit}
+                    className="px-6 py-3 text-lg font-bold text-white bg-green-600 border-4 border-white rounded-lg hover:bg-green-500 transform hover:scale-105 transition-all duration-200 font-mono"
+                    style={{ 
+                      boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
+                      textShadow: "2px 2px 0px #000"
+                    }}
+                  >
+                    ✅ VERIFY
+                  </button>
+                </div>
+                
+                {linkError && (
+                  <div className="mt-4 text-red-400 font-bold text-center bg-red-500/20 border-2 border-red-400 rounded-lg p-3"
+                       style={{ textShadow: "1px 1px 0px #000" }}>
+                    {linkError}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Verification Success Message */}
+          {isVerified && (
+            <div className="bg-green-500/20 border-4 border-green-400 rounded-lg p-6 mb-8 font-mono"
+                 style={{ 
+                   boxShadow: "0 0 0 4px #000, 0 0 20px rgba(34, 197, 94, 0.3)",
+                   backdropFilter: "blur(2px)"
+                 }}>
+              <h3 className="text-2xl font-bold text-green-400 mb-4" 
+                  style={{ textShadow: "2px 2px 0px #000" }}>
+                ✅ VERIFICATION SUCCESSFUL!
+              </h3>
+              <div className="text-white font-bold" 
+                   style={{ textShadow: "1px 1px 0px #000" }}>
+                Thank you for sharing! You can now play the game! 🎮
+              </div>
+            </div>
+          )}
+
           {/* Start Game Button - Retro Style */}
           <button
             onClick={handleStartGame}
-            className="group relative inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white bg-green-600 border-4 border-white rounded-lg hover:bg-green-500 transform hover:scale-105 transition-all duration-200 font-mono"
+            className={`group relative inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white border-4 border-white rounded-lg transform transition-all duration-200 font-mono ${
+              isVerified 
+                ? 'bg-green-600 hover:bg-green-500 hover:scale-105' 
+                : 'bg-gray-600 cursor-not-allowed opacity-75'
+            }`}
             style={{ 
               boxShadow: "0 0 0 4px #000, 0 6px 0 #333",
               textShadow: "2px 2px 0px #000"
             }}
             onMouseDown={(e) => {
-              e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
-              e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
+              if (isVerified) {
+                e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
+                e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
+              }
             }}
             onMouseUp={(e) => {
-              e.currentTarget.style.transform = "";
-              e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
+              if (isVerified) {
+                e.currentTarget.style.transform = "";
+                e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
+              }
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = "";
-              e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
+              if (isVerified) {
+                e.currentTarget.style.transform = "";
+                e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
+              }
             }}
           >
-            START GAME
+            {isVerified ? '🎮 START GAME' : '🔒 TWEET TO UNLOCK'}
           </button>
 
           {/* Retro Instructions */}
