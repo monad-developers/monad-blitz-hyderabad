@@ -69,7 +69,7 @@ export const WEB3_CONFIG = {
   
   // Transaction settings
   TRANSACTION: {
-    GAS_LIMIT: 21000, // Standard gas limit for native currency transfers
+    GAS_BUFFER_MULTIPLIER: 1.2, // 20% buffer above estimated gas
     GAS_PRICE_MULTIPLIER: 1.2, // 20% above estimated gas price
   },
 } as const;

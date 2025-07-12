@@ -53,11 +53,29 @@ export class TokenService {
           throw new Error('Insufficient MON balance in sender wallet');
         }
 
+        // Estimate gas for the transaction
+        let gasLimit: bigint;
+        try {
+          const gasEstimate = await this.provider.estimateGas({
+            to: recipientAddress,
+            value: amountInWei,
+            from: this.senderWallet.address,
+          });
+
+          // Add buffer to gas estimate using config multiplier
+          const bufferMultiplier = Math.floor(WEB3_CONFIG.TRANSACTION.GAS_BUFFER_MULTIPLIER * 100);
+          gasLimit = gasEstimate * BigInt(bufferMultiplier) / BigInt(100);
+        } catch (gasError) {
+          console.warn('Gas estimation failed, using fallback gas limit:', gasError);
+          // Fallback to a reasonable gas limit for simple transfers
+          gasLimit = BigInt(25000);
+        }
+
         // Prepare transaction
         const transaction = {
           to: recipientAddress,
           value: amountInWei,
-          gasLimit: WEB3_CONFIG.TRANSACTION.GAS_LIMIT,
+          gasLimit: gasLimit,
         };
 
         // Send transaction
