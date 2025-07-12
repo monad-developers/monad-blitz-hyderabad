@@ -1,11 +1,15 @@
-# Monad Blitz Hyderbad Submission Process
+Here is your polished and professional version:
 
-1. Visit the `monad-blitz-hyderabad` repo (link [here](https://github.com/monad-developers/monad-blitz-hyderabad)) and fork it.
+---
 
-<img width="1511" alt="Screenshot 2025-07-07 at 10 12 23 AM" src="https://github.com/user-attachments/assets/e8196bd5-90f7-4906-9994-2580f1b4b3ba" />
+## Project Analysis & Deployed Contract Addresses
 
-2. Give it your project name, a one-liner description, make sure you are forking `main` branch and click `Create Fork`.
+This project is a decentralized platform designed to manage intellectual property (IP) assets, companies, and related investments through smart contracts on the blockchain. The following smart contracts have been deployed and form the core infrastructure of the platform:
 
-<img width="1511" alt="Screenshot 2025-07-07 at 10 11 40 AM" src="https://github.com/user-attachments/assets/0c35b1d6-e8d1-4f8f-a1af-3bcaa476eec6" />
+* **Assets Template:** `0x2259149102839fA199244a6E945028D03f216df9`
+* **Company Template:** `0xbF15ef6E3f62AD7cA787132929B3C7E77297A350`
+* **Factory Contract:** `0x285317B94DC5d6F7047b784D09E2CA85a9D7505F`
+* **Registry Contract:** `0xd4BaDF7D96E246f6e6724743c7da4dDA9dA27Fd6`
+* **Order Manager:** `0x2BF1407Ae056ad01955e3598AC7da2Aa527fe02a`
 
-3. In your fork you can make all the changes you want, add code of your project, create branches, add information to `README.md`, you can change anything and everything.
+These contracts facilitate the creation, registration, management, and exchange of IP-based assets and company entities, while ensuring all transactions are transparently recorded on-chain.
