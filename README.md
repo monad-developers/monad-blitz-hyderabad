@@ -1,73 +1,63 @@
-# Welcome to your Lovable project
+# 🚀 MonadPay+
 
-## Project info
+The UPI for crypto payments — on the Monad blockchain.
 
-**URL**: https://lovable.dev/projects/37782738-5c67-46da-b27a-65155affbb7e
+Create payment links, scan dynamic QR codes, pay in any ERC20 token (USDC, DAI, PEPE), and earn loyalty NFTs — all with near-zero fees and instant confirmation on Monad.
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## ✨ Features
 
-**Use Lovable**
+✅ **Create Payment Links:**  
+Enter recipient, amount, token, and optional features like recurring payments or loyalty NFTs.
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/37782738-5c67-46da-b27a-65155affbb7e) and start prompting.
+✅ **Dynamic QR Codes:**  
+Share links as scannable QR codes for instant checkout from any EVM wallet.
 
-Changes made via Lovable will be committed automatically to this repo.
+✅ **Confirm & Pay:**  
+Users review payment details and process payments on-chain via our smart contracts.
 
-**Use your preferred IDE**
+✅ **Permanent Receive QR:**  
+Like your personal UPI QR — anyone can scan to pay you instantly.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+✅ **Loyalty NFTs:**  
+Reward customers by minting unique ERC721 tokens on successful payments.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+✅ **Full History & Explorer Links:**  
+Track past transactions and view details on Monad block explorer.
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## 🏗️ Tech Stack
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+| Layer            | Technologies & Notes                                      |
+| ---------------- | --------------------------------------------------------- |
+| Frontend         | Next.js, TailwindCSS, TypeScript                          |
+| Wallet / Web3    | Wagmi, RainbowKit, Viem for EVM wallet support            |
+| Smart Contracts  | Solidity, Hardhat, deployed on Monad Testnet              |
+| Blockchain       | Monad (EVM-compatible, high throughput, low fees)         |
+| QR & Links       | `qrcode.react` for live QR code generation                |
+| AI Tools         | GPT-4, Claude, Cursor IDE for rapid prototyping           |
+| Styling & Anim   | Custom Tailwind theme, soft scale/glow, confetti effects  |
 
-# Step 3: Install the necessary dependencies.
-npm i
+---
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+## 🚀 Quick Start
 
-**Edit a file directly in GitHub**
+Clone this repo, install dependencies, run the local blockchain and start your frontend:
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+```bash
+git clone https://github.com/yourusername/monadpay.git
+cd monadpay
 
-**Use GitHub Codespaces**
+# Install dependencies
+yarn install
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+# Start local blockchain
+yarn chain
 
-## What technologies are used for this project?
+# Deploy contracts to local chain
+yarn deploy
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/37782738-5c67-46da-b27a-65155affbb7e) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+# Start Next.js app
+yarn start
