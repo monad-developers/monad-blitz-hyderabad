@@ -16,7 +16,7 @@ export default function LandingPage() {
   const [linkError, setLinkError] = useState("");
 
   // Predefined tweet content
-  const tweetContent = "🚀 Just discovered DRIPPY BIRD - an epic retro arcade game where you collect MONAD TOKENS! 🎮\n\nNavigate through pipes, grab power-ups, and survive as long as you can! 🔥\n\nPlay now and join the adventure! 🎯\n\n#DrippyBird #MonadTokens #RetroGaming #Arcade";
+  const tweetContent = "🚀 Just discovered DRIPPY CAT - an epic retro arcade game where you collect MONAD TOKENS! 🎮\n\nNavigate through pipes, grab power-ups, and survive as long as you can! 🔥\n\nPlay now and join the adventure! 🎯\n\n#DrippyCat #MonadTokens #RetroGaming #Arcade";
 
   // Function to validate Twitter/X link
   const validateTwitterLink = (url: string) => {
@@ -112,7 +112,7 @@ export default function LandingPage() {
                   textShadow: "4px 4px 0px #000, -2px -2px 0px #000, 2px -2px 0px #000, -2px 2px 0px #000",
                   filter: "drop-shadow(2px 2px 0px rgba(0,0,0,0.8))"
                 }}>
-              DRIPPY BIRD
+                              DRIPPY CAT
             </h1>
             
             {/* Animated Monad Cat */}

@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Drippy Bird - Web3 Flappy Bird Game",
-  description: "Play Flappy Bird and earn real tokens! Collect coins and redeem them for cryptocurrency.",
+  title: "Drippy Cat - Web3 Flappy Cat Game",
+  description: "Play Flappy Cat and earn real tokens! Collect coins and redeem them for cryptocurrency.",
 };
 
 export default function RootLayout({

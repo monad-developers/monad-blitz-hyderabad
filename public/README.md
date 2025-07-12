@@ -1,3 +1,3 @@
-# flappy-bird-assets
+# flappy-cat-assets
 
-Assets to develop the Flappy Bird Game
+Assets to develop the Flappy Cat Game

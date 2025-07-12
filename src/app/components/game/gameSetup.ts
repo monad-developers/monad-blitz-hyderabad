@@ -219,7 +219,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
       }
     });
 
-    // Create bird
+    // Create cat
     const bird = k.add([
       k.sprite("bird"),
       k.pos(k.width() / 4, k.height() / 2),
@@ -230,7 +230,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
       "monad-cat",
     ]);
 
-    // Bird animation
+    // Cat animation
     let birdFrame = 0;
     const birdSprites = ["monad-cat"];
     
@@ -262,7 +262,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
         showReadyUI = false;
         updateState();
       }
-      // Only allow jumping if bird has body component (not paused after death)
+      // Only allow jumping if cat has body component (not paused after death)
       if (bird.c("body")) {
         bird.jump(JUMP_FORCE);
         k.play("jump");
@@ -274,7 +274,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
         showReadyUI = false;
         updateState();
       }
-      // Only allow jumping if bird has body component (not paused after death)
+      // Only allow jumping if cat has body component (not paused after death)
       if (bird.c("body")) {
         bird.jump(JUMP_FORCE);
         k.play("jump");
@@ -296,7 +296,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
       // Ghost mode timer
       if (ghostModeActive) {
         ghostModeTimer -= k.dt();
-        // Make bird semi-transparent during ghost mode
+        // Make cat semi-transparent during ghost mode
         bird.opacity = 0.6;
         if (ghostModeTimer <= 0) {
           ghostModeActive = false;

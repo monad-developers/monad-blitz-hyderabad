@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { initializeKaboom } from "./game/gameSetup";
 
-export default function FlappyBirdGame() {
+export default function FlappyCatGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const router = useRouter();
   const [isGameLoaded, setIsGameLoaded] = useState(false);

@@ -1,5 +1,5 @@
-import FlappyBirdGame from "../components/FlappyBirdGame";
+import FlappyCatGame from "../components/FlappyBirdGame";
 
 export default function GamePage() {
-  return <FlappyBirdGame />;
+  return <FlappyCatGame />;
 } 
