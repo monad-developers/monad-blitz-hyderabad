@@ -23,9 +23,9 @@ export default function LandingPage() {
 
     return url.startsWith("123") || url.startsWith("https://twitter.com");
   };
-
+ 
   // Handle tweet link submission
-  const handleTweetLinkSubmit = () => {
+  const handleTweetLinkSubmit = () => { 
     setLinkError("");
     
     if (!tweetLink.trim()) {
