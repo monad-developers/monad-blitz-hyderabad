@@ -347,12 +347,14 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
 
       // Top pipe
       k.add([
-        k.pos(k.width(), 0),
+        k.pos(k.width(), h1),
         k.sprite("pipe"),
         k.area(),
+        k.rotate(180),
         k.offscreen({ destroy: true }),
         k.scale(2, h1 / 320),
-        k.anchor("topleft"),
+        k.color(131, 110, 249),
+        k.anchor("topright"),
         "pipe",
       ]);
 
@@ -361,6 +363,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
         k.pos(k.width(), h1 + currentPipeGap),
         k.sprite("pipe"),
         k.area(),
+        k.color(131, 110, 249),
         k.offscreen({ destroy: true }),
         k.scale(2, h2 / 320),
         k.anchor("topleft"),
