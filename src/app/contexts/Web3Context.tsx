@@ -26,6 +26,40 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Utility functions for mobile detection and MetaMask handling
+  const isMobile = () => {
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') return false;
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  };
+
+  const isMetaMaskInstalled = () => {
+    if (typeof window === 'undefined') return false;
+    return window.ethereum && window.ethereum.isMetaMask;
+  };
+
+  const openMetaMaskApp = () => {
+    if (typeof window === 'undefined') return;
+    
+    const currentUrl = window.location.href;
+    const metamaskAppUrl = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
+    
+    // Try to open MetaMask app
+    window.location.href = metamaskAppUrl;
+    
+    // Fallback: redirect to app store after a delay if MetaMask doesn't open
+    setTimeout(() => {
+      if (typeof navigator === 'undefined') return;
+      
+      const userAgent = navigator.userAgent || navigator.vendor;
+      
+      if (/android/i.test(userAgent)) {
+        window.open('https://play.google.com/store/apps/details?id=io.metamask', '_blank');
+      } else if (/iPad|iPhone|iPod/.test(userAgent)) {
+        window.open('https://apps.apple.com/app/metamask/id1438144202', '_blank');
+      }
+    }, 3000);
+  };
+
   // Check if wallet is already connected on mount
   useEffect(() => {
     checkWalletConnection();
@@ -91,7 +125,15 @@ export const Web3Provider: React.FC<Web3ProviderProps> = ({ children }) => {
     setError(null);
 
     try {
-      // Check if MetaMask is installed
+      // Check if we're on mobile and MetaMask is not installed
+      if (isMobile() && !isMetaMaskInstalled()) {
+        setIsLoading(false);
+        // Open MetaMask app instead of showing error
+        openMetaMaskApp();
+        return;
+      }
+
+      // Check if MetaMask is installed on desktop
       if (typeof window === 'undefined' || !window.ethereum) {
         throw new Error('MetaMask is not installed. Please install MetaMask to continue.');
       }
