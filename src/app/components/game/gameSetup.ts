@@ -43,8 +43,6 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
   const BASE_SPEED = 320; // Increased from 240 to make game faster
   const SPEED_INCREASE_THRESHOLD = 5; // Reduced from 10 to increase speed more frequently
   const SPEED_INCREASE_AMOUNT = 80; // Increased from 50 to make speed increases more dramatic
-  const STRAIGHT_LINE_STAGE_START = 15; // Reduced from 20 to start earlier
-  const STRAIGHT_LINE_STAGE_DURATION = 3; // Reduced from 5 to make it shorter
   const CEILING = -50; // Raised from -100 to reduce vertical space
 
   // Game scene
@@ -58,9 +56,6 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
     let ghostModeTimer = 0;
     let currentSpeed = BASE_SPEED;
     let currentPipeGap = 120; // Dynamic pipe gap that gets smaller as score increases
-    let inStraightLineStage = false;
-    let straightLineStageCounter = 0;
-    let straightLineGapPosition = 0; // Store the gap position for straight line stage
     let pipeSpawnTimer = 0;
     let itemSpawnTimer = 0; // Timer for coordinated item spawning
     let gameStarted = false; // Track if game has started (first pipe spawned)
@@ -240,11 +235,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       speedLabel.text = "";
       
       // Update stage display
-      if (inStraightLineStage) {
-        stageLabel.text = `STRAIGHT LINE: ${STRAIGHT_LINE_STAGE_DURATION - straightLineStageCounter} left`;
-      } else {
-        stageLabel.text = "";
-      }
+      stageLabel.text = "";
     });
 
     // Track current pipe gap for safe spawning
@@ -259,8 +250,8 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       k.wait(0.1, () => {
         // Only spawn if we have a safe gap defined
         if (currentPipeGapPosition.top > 0 && currentPipeGapPosition.bottom > 0) {
-          const safeZoneStart = currentPipeGapPosition.top + 50; // Increased margin from 40 to 50
-          const safeZoneEnd = currentPipeGapPosition.bottom - 50; // Increased margin from 40 to 50
+          const safeZoneStart = currentPipeGapPosition.top + 30; // Reduced margin for better visibility
+          const safeZoneEnd = currentPipeGapPosition.bottom - 30; // Reduced margin for better visibility
           
           if (safeZoneEnd > safeZoneStart) {
             const y = k.rand(safeZoneStart, safeZoneEnd);
@@ -287,8 +278,8 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       k.wait(0.1, () => {
         // Only spawn if we have a safe gap defined
         if (currentPipeGapPosition.top > 0 && currentPipeGapPosition.bottom > 0) {
-          const safeZoneStart = currentPipeGapPosition.top + 60; // Increased margin from 50 to 60
-          const safeZoneEnd = currentPipeGapPosition.bottom - 60; // Increased margin from 50 to 60
+          const safeZoneStart = currentPipeGapPosition.top + 30; // Reduced margin for better visibility
+          const safeZoneEnd = currentPipeGapPosition.bottom - 30; // Reduced margin for better visibility
           
           if (safeZoneEnd > safeZoneStart) {
             const y = k.rand(safeZoneStart, safeZoneEnd);
@@ -314,8 +305,8 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       k.wait(0.1, () => {
         // Only spawn if we have a safe gap defined
         if (currentPipeGapPosition.top > 0 && currentPipeGapPosition.bottom > 0) {
-          const safeZoneStart = currentPipeGapPosition.top + 60; // Increased margin from 50 to 60
-          const safeZoneEnd = currentPipeGapPosition.bottom - 60; // Increased margin from 50 to 60
+          const safeZoneStart = currentPipeGapPosition.top + 30; // Reduced margin for better visibility
+          const safeZoneEnd = currentPipeGapPosition.bottom - 30; // Reduced margin for better visibility
           
           if (safeZoneEnd > safeZoneStart) {
             const y = k.rand(safeZoneStart, safeZoneEnd);
@@ -361,29 +352,11 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       }
       
       // Check if we should start straight line stage
-      if (score >= STRAIGHT_LINE_STAGE_START && score % 10 === 0 && !inStraightLineStage) {
-        inStraightLineStage = true;
-        straightLineStageCounter = 0;
-        // Set a consistent gap position for the straight line stage
-        straightLineGapPosition = k.rand(PIPE_MIN + 50, k.height() - PIPE_MIN - currentPipeGap - 150);
-      }
+      // Removed straight line stage logic
       
-      // Check if we're in straight line stage
-      if (inStraightLineStage) {
-        // Create straight line pipes with consistent gap position
-        h1 = straightLineGapPosition;
-        h2 = k.height() - h1 - currentPipeGap - 100;
-        straightLineStageCounter++;
-        
-        if (straightLineStageCounter >= STRAIGHT_LINE_STAGE_DURATION) {
-          inStraightLineStage = false;
-          straightLineStageCounter = 0;
-        }
-      } else {
-        // Normal random pipe generation
-        h1 = k.rand(PIPE_MIN, k.height() - PIPE_MIN - currentPipeGap - 100);
-        h2 = k.height() - h1 - currentPipeGap - 100;
-      }
+      // Normal random pipe generation
+      h1 = k.rand(PIPE_MIN, k.height() - PIPE_MIN - currentPipeGap - 100);
+      h2 = k.height() - h1 - currentPipeGap - 100;
 
       // Update current pipe gap for safe spawning (fixed calculation)
       currentPipeGapPosition = {
