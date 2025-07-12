@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>SimpleStorage dApp</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; background: #111; color: #eee; }
+    input, button { margin: 0.5rem 0; padding: 0.5rem; }
+  </style>
+</head>
+<body>
+  <h2>SimpleStorage dApp</h2>
+  
+  <div>
+    <input type="number" id="numInput" placeholder="Enter number" />
+    <button onclick="setNumber()">Set Number</button>
+  </div>
+
+  <div>
+    <button onclick="getNumber()">Get Number</button>
+    <p id="output"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.10.0/dist/ethers.umd.min.js"></script>
+  <script>
+    const contractAddress = "0xBbC4811947677A748e3eC38517713cafd8B4Bb0E";
+    const abi = [
+      "function set(uint256 _num) public",
+      "function get() public view returns (uint256)"
+    ];
+
+    let provider, signer, contract;
+
+    async function connectWallet() {
+      if (window.ethereum) {
+        provider = new ethers.BrowserProvider(window.ethereum);
+        await provider.send("eth_requestAccounts", []);
+        signer = await provider.getSigner();
+        contract = new ethers.Contract(contractAddress, abi, signer);
+      } else {
+        alert("MetaMask not detected");
+      }
+    }
+
+    async function setNumber() {
+      await connectWallet();
+      const val = document.getElementById("numInput").value;
+      const tx = await contract.set(val);
+      await tx.wait();
+      alert("Stored!");
+    }
+
+    async function getNumber() {
+      await connectWallet();
+      const val = await contract.get();
+      document.getElementById("output").innerText = "Stored value: " + val.toString();
+    }
+  </script>
+</body>
+</html>
