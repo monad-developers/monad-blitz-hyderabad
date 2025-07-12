@@ -1,0 +1,39 @@
+{
+  "name": "monosms",
+  "version": "1.0.0",
+  "description": "SMS-based on-chain execution via Monad + Brewit",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "test": "tsx scripts/test.ts",
+    "test:llm": "tsx scripts/test-llm.ts"
+  },
+  "dependencies": {
+    "@safe-global/protocol-kit": "^1.0.0",
+    "@safe-global/safe-core-sdk-types": "^2.0.0",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.15.0",
+    "fastify": "^4.24.3",
+    "ngrok": "^5.0.0-beta.2",
+    "openai": "^4.20.1",
+    "twilio": "^4.23.0",
+    "viem": "^2.31.7"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.10",
+    "tsx": "^4.6.2",
+    "typescript": "^5.2.2"
+  },
+  "keywords": [
+    "sms",
+    "blockchain",
+    "monad",
+    "brewit",
+    "twilio"
+  ],
+  "author": "",
+  "license": "MIT"
+}

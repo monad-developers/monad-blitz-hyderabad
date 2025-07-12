@@ -1,0 +1,145 @@
+# 🎯 Project: MonoSMS
+# 📦 TypeScript backend for SMS-based on-chain execution via Monad + Brewit
+# 🛠️ Built for production-quality code with hackathon-speed execution
+
+---
+
+## ⚙️ Tech Stack Overview
+
+- **Language**: TypeScript (strict)
+- **Framework**: Fastify (or Express)
+- **SMS Gateway**: Twilio (Webhook-based)
+- **Wallet Auth**: `ethers.js` (local wallet generation)
+- **Blockchain**: Monad chain (testnet)
+- **Smart Wallet**: Brewit SDK (Safe-based delegation)
+- **LLM Parser**: OpenAI API (structured command parsing)
+- **Database**: PostgreSQL (via Prisma ORM)
+- **Environment Config**: Dotenv
+- **Logging**: Console + future pluggable logger
+- **Testing**: Manual via `test.ts` (no Mocha/Chai/etc.)
+
+---
+
+## 📁 Project Structure
+
+src/
+├── api/ # SMS routes (e.g. /sms-handler)
+├── commands/ # Natural language command parser (LLM + fallback)
+├── services/ # Twilio, Blockchain, Wallet, Brewit logic
+├── db/ # Prisma schema + client
+├── utils/ # Shared helpers, encryption, logging
+├── types/ # Shared type definitions
+└── config/ # Constants and env loaders
+scripts/
+└── test.ts # Manual test runner for core modules
+
+
+---
+
+## 📏 Code Quality Rules
+
+### 🔹 File and Function Size
+- **Max file size**: 200 lines
+- **Max function length**: 40 lines
+- **Split logic** into reusable helpers when needed
+
+---
+
+### 🔹 Naming Conventions
+- Files: `kebab-case.ts`
+- Variables, functions: `camelCase`
+- Types, interfaces, classes: `PascalCase`
+- Env vars: `ALL_CAPS_WITH_UNDERSCORE`
+
+---
+
+### 🔹 Twilio SMS Handling
+- Webhook: `/api/sms-handler`
+- SMS commands parsed via LLM first, fallback to regex
+- Respond to Twilio using proper XML or Twilio helper SDK
+- Validate sender format before processing
+
+---
+
+### 🔹 Wallet Management
+- Wallets generated with `ethers.Wallet.createRandom()`
+- Private keys must be encrypted (AES256 recommended)
+- Store only after encryption
+- Map phone → wallet → Safe
+
+---
+
+### 🔹 Brewit Delegation
+- After `REGISTER`, user receives public address
+- User manually adds it as a delegate on Brewit
+- On `VERIFY`, system checks delegated status via Brewit SDK
+- Verified flag set in DB upon success
+
+---
+
+### 🔹 OpenAI LLM Command Parsing
+- Use OpenAI’s function-calling or structured prompt to extract:
+  ```ts
+  {
+    action: "swap",
+    amount: "50%",
+    tokenFrom: "MON",
+    tokenTo: "USDT"
+  }
+
+All commands must be validated (tokens, amount) before execution
+
+Parse failures must be handled gracefully
+
+🔹 Supported Commands (MVP)
+Command	Action
+SWAP 1 MON TO USDT	Swap fixed amount
+SWAP 50% OF MY MON TO USDT	Swap half balance
+SWAP ALL MON TO USDT	Full balance swap
+SEND 1 USDT TO 0x1234...abcd	Send to address
+SEND 0.001 BREWIT TO alice.eth	Send to ENS name
+
+🧪 Testing Rules
+🔹 Manual Test File (test.ts)
+Located at root or in scripts/
+
+Must import and directly test all core modules
+
+Logs results to console for quick inspection
+
+Use tsx to run:
+
+npx tsx scripts/test.ts
+
+ No Mocha, Chai, Jest, Vitest, or external test runners
+
+ 🔹 What to Test
+generateWallet() returns valid address
+
+LLM command parsing handles edge cases
+
+SMS handler correctly responds to REGISTER, VERIFY, etc.
+
+Delegation check returns true/false accurately
+
+Swap + balance functions execute without crash
+
+🛡️ Security & Safety
+Never log or expose private keys
+
+Encrypt sensitive data at rest
+
+Verify sender identity on all incoming SMS
+
+Enforce rate limiting per phone number
+
+Always validate token addresses before signing
+
+ Build Philosophy
+Modular → One job per file
+
+Testable → Even if manually
+
+Lightweight → No unused dependencies
+
+Secure → Especially around wallet and on-chain ops
