@@ -1,11 +1,67 @@
-# Monad Blitz Hyderbad Submission Process
+# 🔮 MonadScope - Smart Portfolio Analyzer for Monad
 
-1. Visit the `monad-blitz-hyderabad` repo (link [here](https://github.com/monad-developers/monad-blitz-hyderabad)) and fork it.
+**MonadScope** is a decentralized portfolio analyzer that gives you deep insights into your wallet assets on the Monad testnet. It’s not just another balance viewer — it provides **token-level risk scores**, **technical & fundamental recommendations**, and **portfolio analytics** to help you make smarter crypto decisions.
 
-<img width="1511" alt="Screenshot 2025-07-07 at 10 12 23 AM" src="https://github.com/user-attachments/assets/e8196bd5-90f7-4906-9994-2580f1b4b3ba" />
+> Built for the [Monad Hackathon](https://monad.xyz), MonadScope brings portfolio intelligence to the next generation of performant blockchains.
 
-2. Give it your project name, a one-liner description, make sure you are forking `main` branch and click `Create Fork`.
+---
 
-<img width="1511" alt="Screenshot 2025-07-07 at 10 11 40 AM" src="https://github.com/user-attachments/assets/0c35b1d6-e8d1-4f8f-a1af-3bcaa476eec6" />
+## 🚀 Features
 
-3. In your fork you can make all the changes you want, add code of your project, create branches, add information to `README.md`, you can change anything and everything.
+### 🔗 Wallet Integration
+- Connect your EVM-compatible wallet via MetaMask.
+- Fetch all tokens (MON & ERC-20) on the Monad testnet.
+
+### 📊 Token Portfolio Dashboard
+- Token list with:
+  - ✅ Symbol, Name, Logo
+  - ✅ Balance + USD value (mock/testnet pricing)
+  - ✅ Token share in portfolio
+  - ✅ 24h price movement
+  - ✅ Category (Stablecoin, DeFi, L2, Meme, etc.)
+
+### 🛡️ Risk Analysis Engine
+- ✅ Holder concentration (whale risk)
+- ✅ Contract age & liquidity signals
+- ✅ Audit & verification status
+- ✅ Token volatility & age
+- (Optional off-chain risk integrations)
+
+### 📈 Recommendation Engine
+- Buy / Hold / Sell suggestions based on:
+  - RSI, Moving Averages (mocked via TradingView logic)
+  - Token distribution & ownership
+  - Portfolio overexposure
+
+### 📉 Analytics
+- ✅ Portfolio pie chart
+- ✅ Risk heatmap
+- ✅ Correlation matrix
+- ✅ (Coming soon) Price graph over time
+
+### 🖥️ UI/UX
+- Beautiful, responsive React UI
+- Built with TailwindCSS + ShadCN
+- Dark mode ready
+- TradingView-style widgets & charts
+
+---
+
+## 🧪 Tech Stack
+
+| Layer       | Tech                         |
+|-------------|------------------------------|
+| Frontend    | React + Tailwind + ShadCN UI |
+| Wallets     | MetaMask, Wagmi, Ethers.js   |
+| Chain       | Monad Testnet                |
+| Charts      | TradingView Widget, Recharts |
+| Risk Logic  | On-chain heuristics + mock APIs |
+| Deployment  | Vercel / Static Hosting      |
+
+---
+
+## 🛠️ Setup Instructions
+
+### 1. Clone the repo
+
+```bash
