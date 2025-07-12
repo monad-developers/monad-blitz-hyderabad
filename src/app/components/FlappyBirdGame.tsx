@@ -2,9 +2,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { initializeKaboom } from "./game/gameSetup";
+import { useWeb3 } from "../contexts/Web3Context";
+import WalletConnect from "./WalletConnect";
+import { WEB3_CONFIG } from "../lib/web3/config";
 
 export default function FlappyBirdGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { wallet, sendTokens, isLoading: web3Loading, error: web3Error } = useWeb3();
+  const [showWalletConnect, setShowWalletConnect] = useState(false);
+  const [redemptionStatus, setRedemptionStatus] = useState<{
+    isRedeeming: boolean;
+    success: boolean;
+    txHash?: string;
+    error?: string;
+  }>({
+    isRedeeming: false,
+    success: false,
+  });
   const [gameState, setGameState] = useState({
     score: 0,
     coins: 0,
@@ -26,6 +40,69 @@ export default function FlappyBirdGame() {
 
     return cleanup;
   }, []);
+
+  const handleRedeemCoins = async () => {
+    // Check if user has any coins
+    if (gameState.coins < 1) {
+      setRedemptionStatus({
+        isRedeeming: false,
+        success: false,
+        error: `You need at least 1 coin to redeem!`,
+      });
+      return;
+    }
+
+    // Check if wallet is connected
+    if (!wallet.isConnected) {
+      setShowWalletConnect(true);
+      return;
+    }
+
+    // Start redemption process
+    setRedemptionStatus({
+      isRedeeming: true,
+      success: false,
+    });
+
+    try {
+      // Send tokens to user's wallet
+      const txHash = await sendTokens({
+        recipientAddress: wallet.address!,
+        amount: gameState.coins.toString(),
+      });
+
+      setRedemptionStatus({
+        isRedeeming: false,
+        success: true,
+        txHash,
+      });
+
+      // Reset coins after successful redemption
+      setGameState(prev => ({ ...prev, coins: 0 }));
+    } catch (error: any) {
+      setRedemptionStatus({
+        isRedeeming: false,
+        success: false,
+        error: error.message || 'Failed to redeem coins. Please try again.',
+      });
+    }
+  };
+
+  const handlePlayAgain = () => {
+    // Reset redemption status
+    setRedemptionStatus({
+      isRedeeming: false,
+      success: false,
+    });
+    
+    // Restart the game (this will trigger Kaboom to restart)
+    if (canvasRef.current) {
+      // The game restart logic is handled by Kaboom's scene management
+      // We can trigger it by dispatching a space key event or calling the game's restart function
+      const event = new KeyboardEvent('keydown', { key: ' ' });
+      window.dispatchEvent(event);
+    }
+  };
 
   return (
     <div className="w-screen h-screen relative overflow-hidden bg-black">
@@ -168,7 +245,7 @@ export default function FlappyBirdGame() {
               </h2>
               <p className="text-white mb-6" 
                  style={{ textShadow: "1px 1px 0px #000" }}>
-                Collect <span className="text-yellow-400 font-bold">MONAD TOKENS</span> and avoid pipes!
+                Collect <span className="text-yellow-400 font-bold">MONAD COINS</span> and redeem for MON!
               </p>
               <div className="text-sm text-white bg-black/50 px-4 py-2 rounded border border-white"
                    style={{ textShadow: "1px 1px 0px #000" }}>
@@ -204,14 +281,24 @@ export default function FlappyBirdGame() {
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
-                  className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-yellow-600 border-4 border-white rounded-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-200 font-mono"
+                  onClick={handleRedeemCoins}
+                  disabled={redemptionStatus.isRedeeming || gameState.coins < 1}
+                  className={`group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white border-4 border-white rounded-lg transform hover:scale-105 transition-all duration-200 font-mono pointer-events-auto ${
+                    redemptionStatus.isRedeeming 
+                      ? 'bg-gray-600 cursor-not-allowed' 
+                      : gameState.coins < 1
+                      ? 'bg-gray-600 cursor-not-allowed'
+                      : 'bg-yellow-600 hover:bg-yellow-500'
+                  }`}
                   style={{ 
                     boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
                     textShadow: "2px 2px 0px #000"
                   }}
                   onMouseDown={(e) => {
-                    e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
-                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
+                    if (!redemptionStatus.isRedeeming && gameState.coins >= 1) {
+                      e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
+                      e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
+                    }
                   }}
                   onMouseUp={(e) => {
                     e.currentTarget.style.transform = "";
@@ -222,11 +309,12 @@ export default function FlappyBirdGame() {
                     e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 4px 0 #333";
                   }}
                 >
-                  REDEEM COINS
+                  {redemptionStatus.isRedeeming ? 'REDEEMING...' : 'REDEEM COINS'}
                 </button>
                 
                 <button
-                  className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-green-600 border-4 border-white rounded-lg hover:bg-green-500 transform hover:scale-105 transition-all duration-200 font-mono"
+                  onClick={handlePlayAgain}
+                  className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-green-600 border-4 border-white rounded-lg hover:bg-green-500 transform hover:scale-105 transition-all duration-200 font-mono pointer-events-auto"
                   style={{ 
                     boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
                     textShadow: "2px 2px 0px #000"
@@ -247,6 +335,62 @@ export default function FlappyBirdGame() {
                   PLAY AGAIN
                 </button>
               </div>
+
+              {/* Redemption Status */}
+              {redemptionStatus.success && (
+                <div className="mt-4 bg-green-500/20 border-2 border-green-400 rounded-lg p-4">
+                  <div className="text-green-400 font-bold text-center mb-2" style={{ textShadow: "1px 1px 0px #000" }}>
+                    ✅ MON SENT SUCCESSFULLY!
+                  </div>
+                  {redemptionStatus.txHash && (
+                    <div className="text-xs text-green-300 text-center">
+                      <a 
+                        href={`${WEB3_CONFIG.NETWORKS[WEB3_CONFIG.DEFAULT_NETWORK].blockExplorer}/tx/${redemptionStatus.txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="underline hover:text-green-200"
+                      >
+                        View Transaction
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {redemptionStatus.error && (
+                <div className="mt-4 bg-red-500/20 border-2 border-red-400 rounded-lg p-4">
+                  <div className="text-red-400 font-bold text-center mb-2" style={{ textShadow: "1px 1px 0px #000" }}>
+                    ❌ REDEMPTION FAILED
+                  </div>
+                  <div className="text-xs text-red-300 text-center">
+                    {redemptionStatus.error}
+                  </div>
+                </div>
+              )}
+
+              {/* Wallet Status */}
+              {wallet.isConnected && (
+                <div className="mt-4 bg-blue-500/20 border-2 border-blue-400 rounded-lg p-3">
+                  <div className="text-blue-400 font-bold text-center text-sm" style={{ textShadow: "1px 1px 0px #000" }}>
+                    💳 WALLET CONNECTED
+                  </div>
+                  <div className="text-xs text-blue-300 text-center">
+                    {wallet.address?.slice(0, 6)}...{wallet.address?.slice(-4)}
+                  </div>
+                </div>
+              )}
+
+              {/* Redemption Requirements */}
+              {gameState.coins < 1 && (
+                <div className="mt-4 bg-yellow-500/20 border-2 border-yellow-400 rounded-lg p-3">
+                  <div className="text-yellow-400 font-bold text-center text-sm" style={{ textShadow: "1px 1px 0px #000" }}>
+                    ⚠️ COLLECT COINS TO REDEEM
+                  </div>
+                  <div className="text-xs text-yellow-300 text-center">
+                    Play the game to collect coins and redeem for MON tokens!
+                  </div>
+                </div>
+              )}
               
               <div className="text-xs text-white/70 mt-4 bg-black/50 px-4 py-2 rounded border border-white/30"
                    style={{ textShadow: "1px 1px 0px #000" }}>
@@ -260,10 +404,15 @@ export default function FlappyBirdGame() {
         <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
           <div className="text-white font-mono text-sm bg-black/50 px-4 py-2 rounded border border-white"
                style={{ textShadow: "1px 1px 0px #000" }}>
-            SPACE/CLICK TO JUMP • COLLECT TOKENS • AVOID PIPES
+            SPACE/CLICK TO JUMP • COLLECT COINS • REDEEM FOR MON
           </div>
         </div>
       </div>
+
+      {/* Wallet Connect Modal */}
+      {showWalletConnect && (
+        <WalletConnect onClose={() => setShowWalletConnect(false)} />
+      )}
     </div>
   );
 } 

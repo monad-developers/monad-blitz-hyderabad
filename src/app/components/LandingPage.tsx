@@ -119,7 +119,7 @@ export default function LandingPage() {
             
             <div className="text-2xl md:text-3xl text-yellow-300 mb-6 font-mono font-bold"
                  style={{ textShadow: "2px 2px 0px #000" }}>
-              COLLECT MONAD TOKENS!
+              COLLECT COINS & EARN MON!
             </div>
           </div>
 
@@ -136,13 +136,13 @@ export default function LandingPage() {
             
             <div className="text-lg md:text-xl text-white space-y-4 mb-8 font-mono">
               <p style={{ textShadow: "1px 1px 0px #000" }}>
-                Navigate through pipes while collecting precious <strong className="text-yellow-400">MONAD TOKENS</strong>!
+                Navigate through pipes while collecting precious <strong className="text-yellow-400">MONAD COINS</strong>!
               </p>
               <p style={{ textShadow: "1px 1px 0px #000" }}>
-                Grab power-ups to boost your abilities and survive longer!
+                Redeem your coins for real <strong className="text-purple-400">MON tokens</strong> on Monad Testnet!
               </p>
               <p style={{ textShadow: "1px 1px 0px #000" }}>
-                Experience the ultimate retro arcade challenge!
+                Experience the ultimate Web3 arcade challenge!
               </p>
             </div>
 
@@ -163,10 +163,10 @@ export default function LandingPage() {
                   />
                 </div>
                 <div className="text-white font-bold text-sm" style={{ textShadow: "1px 1px 0px #000" }}>
-                  MONAD TOKENS
+                  MONAD COINS
                 </div>
                 <div className="text-xs text-yellow-200" style={{ textShadow: "1px 1px 0px #000" }}>
-                  Collect for points!
+                  Redeem for MON!
                 </div>
               </div>
 
@@ -188,7 +188,7 @@ export default function LandingPage() {
                   DOUBLE POINTS
                 </div>
                 <div className="text-xs text-pink-200" style={{ textShadow: "1px 1px 0px #000" }}>
-                  2x tokens for 3 seconds!
+                  2x coins for 3 seconds!
                 </div>
               </div>
 
@@ -361,7 +361,7 @@ export default function LandingPage() {
           <div className="mt-8 text-white font-mono">
             <p className="text-sm bg-black/50 inline-block px-4 py-2 rounded border border-white"
                style={{ textShadow: "1px 1px 0px #000" }}>
-              PRESS SPACE OR CLICK TO JUMP • COLLECT TOKENS • AVOID PIPES
+              PRESS SPACE OR CLICK TO JUMP • COLLECT COINS • REDEEM FOR MON
             </p>
           </div>
         </div>
