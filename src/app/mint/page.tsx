@@ -40,6 +40,7 @@ const MintPage = () => {
     { name: "Home", link: "/" },
     { name: "Features", link: "/features" },
     { name: "Mint NFT", link: "/mint" },
+    { name: "Wallet", link: "/wallet" },
   ];
 
   const handleUploadImage = async () => {
