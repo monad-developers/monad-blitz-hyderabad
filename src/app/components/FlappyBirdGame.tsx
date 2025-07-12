@@ -15,7 +15,8 @@ export default function FlappyBirdGame() {
     ghostModeTimer: 0,
     gameOver: false,
     gameStarted: false,
-    showReadyUI: true
+    showReadyUI: true,
+    showLifeLostMessage: false
   });
 
   useEffect(() => {
@@ -76,7 +77,7 @@ export default function FlappyBirdGame() {
                   </div>
                   <span className="text-green-400 font-bold text-sm" 
                         style={{ textShadow: "1px 1px 0px #000" }}>
-                    {Math.ceil(gameState.ghostModeTimer)}s
+                    GHOST: {Math.ceil(gameState.ghostModeTimer)}s
                   </span>
                 </div>
               </div>
@@ -117,6 +118,42 @@ export default function FlappyBirdGame() {
             </div>
           </div>
         </div>
+
+        {/* Life Lost Message */}
+        {gameState.showLifeLostMessage && gameState.ghostMode && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none bg-black/50">
+            <div className="bg-red-500/20 border-4 border-red-400 rounded-lg p-12 text-center font-mono animate-pulse"
+                 style={{ 
+                   boxShadow: "0 0 0 4px #000, 0 0 30px rgba(255,0,0,0.5)" 
+                 }}>
+              <h2 className="text-4xl font-bold text-red-400 mb-6" 
+                  style={{ textShadow: "3px 3px 0px #000" }}>
+                LIFE LOST!
+              </h2>
+              
+              {/* Large Life Counter in Center */}
+              <div className="mb-6">
+                <div className="text-6xl font-bold text-white mb-2"
+                     style={{ textShadow: "3px 3px 0px #000" }}>
+                  {gameState.lives}
+                </div>
+                <div className="text-2xl text-red-400 font-bold"
+                     style={{ textShadow: "2px 2px 0px #000" }}>
+                  LIVES LEFT
+                </div>
+              </div>
+              
+              <p className="text-green-400 font-bold text-xl mb-4" 
+                 style={{ textShadow: "2px 2px 0px #000" }}>
+                👻 GHOST MODE ACTIVATED
+              </p>
+              <div className="text-lg text-yellow-400 bg-black/50 px-6 py-3 rounded border border-yellow-400 animate-pulse"
+                   style={{ textShadow: "1px 1px 0px #000" }}>
+                GAME PAUSED - RESUMING IN 3 SECONDS...
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Game Start Instructions */}
         {gameState.showReadyUI && !gameState.gameStarted && !gameState.gameOver && (

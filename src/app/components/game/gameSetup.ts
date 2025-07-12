@@ -66,7 +66,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
     const itemSpawnInterval = 0.5; // Reduced interval between item spawns
 
     // Update React state function
-    const updateState = () => {
+    const updateState = (showLifeLostMessage = false) => {
       if (updateGameState) {
         updateGameState({
           score,
@@ -78,7 +78,8 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
           ghostModeTimer,
           gameOver: false,
           gameStarted,
-          showReadyUI
+          showReadyUI,
+          showLifeLostMessage
         });
       }
     };
@@ -86,21 +87,95 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
     // Initial state update
     updateState();
 
+    // Function to find a safe position for the bird
+    function findSafePosition() {
+      // Always place bird in the left side of screen in a safe vertical position
+      const safeX = k.width() / 4; // Standard bird starting position
+      
+      // Get all pipes currently on screen
+      const pipes = k.get("pipe");
+      
+      if (pipes.length === 0) {
+        // No pipes on screen, center height is safe
+        return { x: safeX, y: k.height() / 2 };
+      }
+      
+      // Find a safe Y position by checking for clear areas
+      const screenHeight = k.height() - 100; // Account for ground
+      const safeZones = [];
+      
+      // Check different height zones for safety
+      for (let y = 100; y < screenHeight - 50; y += 50) {
+        let isSafe = true;
+        
+        // Check if this Y position conflicts with any pipes in the left area
+        for (const pipe of pipes) {
+          if (pipe.pos.x > safeX - 100 && pipe.pos.x < safeX + 100) {
+            // Check if this Y position overlaps with the pipe
+            if (pipe.pos.y <= y && pipe.pos.y + pipe.height >= y) {
+              isSafe = false;
+              break;
+            }
+          }
+        }
+        
+        if (isSafe) {
+          safeZones.push(y);
+        }
+      }
+      
+      // Choose the safest Y position (preferably center)
+      let safeY = k.height() / 2; // Default to center
+      
+      if (safeZones.length > 0) {
+        // Find the zone closest to center
+        safeY = safeZones.reduce((prev, curr) => {
+          return Math.abs(curr - k.height() / 2) < Math.abs(prev - k.height() / 2) ? curr : prev;
+        });
+      }
+      
+      return { x: safeX, y: safeY };
+    }
+
     // Handle death function
     function handleDeath() {
       k.play("hit");
       lives--;
-      updateState();
       
       if (lives <= 0) {
         // Game over - all lives lost
         k.go("lose", { score, coins });
       } else {
-        // Reset bird position and continue
-        bird.pos.x = k.width() / 4;
-        bird.pos.y = k.height() / 2;
+        // Pause the game by stopping all movement
+        const originalSpeed = currentSpeed;
+        currentSpeed = 0; // Stop all pipe movement
+        
+        // Find a safe position for respawn
+        const safePos = findSafePosition();
+        
+        // Reset bird position to safe spot
+        bird.pos.x = safePos.x;
+        bird.pos.y = safePos.y;
         bird.vel.x = 0;
         bird.vel.y = 0;
+        
+        // Completely freeze the bird by removing body component temporarily
+        bird.unuse("body");
+        
+        // Automatically activate ghost mode for protection
+        ghostModeActive = true;
+        ghostModeTimer = 5; // Give 5 seconds of protection
+        bird.opacity = 0.6; // Make bird semi-transparent
+        
+        // Show life lost message with pause
+        updateState(true);
+        
+        // Resume game after 3 seconds
+        k.wait(3, () => {
+          currentSpeed = originalSpeed; // Restore movement
+          bird.use(k.body()); // Re-enable physics
+          updateState(false);
+        });
       }
     }
 
@@ -178,8 +253,11 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
         showReadyUI = false;
         updateState();
       }
-      bird.jump(JUMP_FORCE);
-      k.play("jump");
+      // Only allow jumping if bird has body component (not paused after death)
+      if (bird.c("body")) {
+        bird.jump(JUMP_FORCE);
+        k.play("jump");
+      }
     });
 
     k.onClick(() => {
@@ -187,8 +265,11 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
         showReadyUI = false;
         updateState();
       }
-      bird.jump(JUMP_FORCE);
-      k.play("jump");
+      // Only allow jumping if bird has body component (not paused after death)
+      if (bird.c("body")) {
+        bird.jump(JUMP_FORCE);
+        k.play("jump");
+      }
     });
 
     // UI Elements removed - using React overlay instead
