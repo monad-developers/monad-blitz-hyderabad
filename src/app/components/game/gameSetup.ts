@@ -148,9 +148,9 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       k.play("jump");
     });
 
-    // UI Elements
+    // UI Elements - Score hidden as requested
     const scoreLabel = k.add([
-      k.text(`Score: ${score}`, { size: 24, font: "monospace" }),
+      k.text("", { size: 24, font: "monospace" }),
       k.anchor("topright"),
       k.pos(k.width() - 20, 20),
       k.fixed(),
@@ -189,9 +189,9 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
       k.outline(2, k.BLACK),
     ]);
 
-    // Speed indicator
+    // Speed indicator - Hidden as requested
     const speedLabel = k.add([
-      k.text(`Speed: ${Math.round(currentSpeed)}`, { size: 18, font: "monospace" }),
+      k.text("", { size: 18, font: "monospace" }),
       k.anchor("topleft"),
       k.pos(20, 110),
       k.fixed(),
@@ -236,8 +236,8 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
         }
       }
 
-      // Update speed display
-      speedLabel.text = `Speed: ${Math.round(currentSpeed)}`;
+      // Speed display hidden as requested
+      speedLabel.text = "";
       
       // Update stage display
       if (inStraightLineStage) {
@@ -337,16 +337,14 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
     function spawnRandomItem() {
       if (!gameStarted) return;
       
-      // Reduced from 85% to 60% chance to spawn an item after each pipe
-      if (k.rand() < 0.60) {
-        const itemType = k.rand();
-        if (itemType < 0.75) {
-          spawnCoin(); // Increased to 75% chance for coins (less valuable items)
-        } else if (itemType < 0.90) {
-          spawnMushroom(); // Reduced to 15% chance for mushroom
-        } else {
-          spawnGhostiny(); // Reduced to 10% chance for ghostiny
-        }
+      // Guarantee 100% chance to spawn an item after each pipe
+      const itemType = k.rand();
+      if (itemType < 0.75) {
+        spawnCoin(); // 75% chance for coins (less valuable items)
+      } else if (itemType < 0.90) {
+        spawnMushroom(); // 15% chance for mushroom
+      } else {
+        spawnGhostiny(); // 10% chance for ghostiny
       }
       
       lastItemSpawnTime = k.time();
@@ -484,7 +482,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement) {
 
     function addScore() {
       score++;
-      scoreLabel.text = `Score: ${score}`;
+      scoreLabel.text = ""; // Score hidden as requested
       k.play("score");
       
       // Increase speed after every SPEED_INCREASE_THRESHOLD pipes

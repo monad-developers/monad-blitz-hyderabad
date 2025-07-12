@@ -1,5 +1,5 @@
-import FlappyBirdGame from "./components/FlappyBirdGame";
+import LandingPage from "./components/LandingPage";
 
 export default function Home() {
-  return <FlappyBirdGame />;
+  return <LandingPage />;
 }
