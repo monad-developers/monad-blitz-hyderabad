@@ -1,5 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import { Toaster } from "react-hot-toast";
+import { WalletProvider } from "../hooks/wallet-context";
 
 export const metadata: Metadata = {
   title: "NFT Terminal",
@@ -13,7 +15,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        <WalletProvider>
+        {children}
+        </WalletProvider>
+        <Toaster />
+      </body>
     </html>
   );
 }

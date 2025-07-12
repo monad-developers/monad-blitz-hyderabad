@@ -5,16 +5,16 @@ import {
   NavBody,
   NavItems,
   NavbarLogo,
-  NavbarButton,
 } from "../components/ui/resizable-navbar";
 import FeatureCard from "../components/FeatureCard";
 import Aurora from "../components/ui/Aurora/Aurora";
+import WalletButton from "../components/WalletButton";
 
 export default function Home() {
   const navItems = [
-    { name: "Home", link: "#" },
-    { name: "Features", link: "#features" },
-    { name: "About", link: "#about" },
+    { name: "Home", link: "/" },
+    { name: "Features", link: "/features" },
+    { name: "Mint NFT", link: "/mint" },
   ];
 
   return (
@@ -29,7 +29,7 @@ export default function Home() {
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} />
-          <NavbarButton href="#get-started">Get Started</NavbarButton>
+          <WalletButton />
         </NavBody>
       </Navbar>
 
