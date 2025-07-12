@@ -3,23 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { initializeKaboom } from "./game/gameSetup";
-import { useWeb3 } from "../contexts/Web3Context";
 
 export default function FlappyBirdGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const router = useRouter();
-  const { wallet, sendTokens, isLoading: web3Loading, error: web3Error } = useWeb3();
-  const [showWalletConnect, setShowWalletConnect] = useState(false);
   const [isGameLoaded, setIsGameLoaded] = useState(false);
-  const [redemptionStatus, setRedemptionStatus] = useState<{
-    isRedeeming: boolean;
-    success: boolean;
-    txHash?: string;
-    error?: string;
-  }>({
-    isRedeeming: false,
-    success: false,
-  });
   const [gameState, setGameState] = useState({
     score: 0,
     coins: 0,
@@ -55,24 +43,22 @@ export default function FlappyBirdGame() {
     };
   }, []);
 
-  const handleRedeemCoins = () => {
-    // Redirect to redemption page with game data
-    const searchParams = new URLSearchParams({
-      score: gameState.score.toString(),
-      coins: gameState.coins.toString(),
-    });
-    router.push(`/redeem?${searchParams.toString()}`);
-  };
+  // Auto-redirect to redemption page when game is over
+  useEffect(() => {
+    if (gameState.gameOver && gameState.lives === 0) {
+      // Small delay to let the user see the game over state briefly
+      const redirectTimer = setTimeout(() => {
+        const searchParams = new URLSearchParams({
+          coins: gameState.coins.toString(),
+        });
+        router.push(`/redeem?${searchParams.toString()}`);
+      }, 2000); // 2 second delay
 
-  const handlePlayAgain = () => {
-    // Restart the game (this will trigger Kaboom to restart)
-    if (canvasRef.current) {
-      // The game restart logic is handled by Kaboom's scene management
-      // We can trigger it by dispatching a space key event or calling the game's restart function
-      const event = new KeyboardEvent('keydown', { key: ' ' });
-      window.dispatchEvent(event);
+      return () => clearTimeout(redirectTimer);
     }
-  };
+  }, [gameState.gameOver, gameState.lives, gameState.coins, router]);
+
+
 
   return (
     <div className="w-screen h-screen relative overflow-hidden bg-black">
@@ -143,16 +129,8 @@ export default function FlappyBirdGame() {
             )}
           </div>
 
-          {/* Right side - Score and Lives */}
+          {/* Right side - Lives only */}
           <div className="space-y-2">
-            {/* Score */}
-            <div className="bg-black/80 border-2 border-white rounded-lg px-4 py-2 font-mono">
-              <div className="text-white font-bold text-xl" 
-                   style={{ textShadow: "2px 2px 0px #000" }}>
-                SCORE: {gameState.score}
-              </div>
-            </div>
-            
             {/* Lives */}
             <div className="bg-black/80 border-2 border-red-400 rounded-lg px-4 py-2 font-mono">
               <div className="flex items-center space-x-2">
@@ -237,9 +215,9 @@ export default function FlappyBirdGame() {
           </div>
         )}
 
-        {/* Game Over Screen */}
+        {/* Game Over Transition Screen */}
         {gameState.gameOver && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+          <div className="absolute inset-0 flex items-center justify-center bg-black/70">
             <div className="bg-black/90 border-4 border-red-500 rounded-lg p-8 text-center font-mono max-w-md"
                  style={{ 
                    boxShadow: "0 0 0 4px #000, 0 0 20px rgba(255,0,0,0.3)" 
@@ -250,68 +228,18 @@ export default function FlappyBirdGame() {
               </h2>
               
               <div className="space-y-3 mb-6">
-                <div className="text-2xl text-white" 
-                     style={{ textShadow: "1px 1px 0px #000" }}>
-                  SCORE: <span className="text-yellow-400 font-bold">{gameState.score}</span>
-                </div>
                 <div className="text-xl text-white" 
                      style={{ textShadow: "1px 1px 0px #000" }}>
                   COINS: <span className="text-yellow-400 font-bold">{gameState.coins}</span>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={handleRedeemCoins}
-                  className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-yellow-600 border-4 border-white rounded-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-200 font-mono pointer-events-auto"
-                  style={{ 
-                    boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
-                    textShadow: "2px 2px 0px #000"
-                  }}
-                  onMouseDown={(e) => {
-                    e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
-                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
-                  }}
-                  onMouseUp={(e) => {
-                    e.currentTarget.style.transform = "";
-                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 4px 0 #333";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "";
-                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 4px 0 #333";
-                  }}
-                >
-                  REDEEM COINS
-                </button>
-                
-                <button
-                  onClick={handlePlayAgain}
-                  className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-green-600 border-4 border-white rounded-lg hover:bg-green-500 transform hover:scale-105 transition-all duration-200 font-mono pointer-events-auto"
-                  style={{ 
-                    boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
-                    textShadow: "2px 2px 0px #000"
-                  }}
-                  onMouseDown={(e) => {
-                    e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
-                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
-                  }}
-                  onMouseUp={(e) => {
-                    e.currentTarget.style.transform = "";
-                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 4px 0 #333";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "";
-                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 4px 0 #333";
-                  }}
-                >
-                  PLAY AGAIN
-                </button>
-              </div>
-              
-              <div className="text-xs text-white/70 mt-4 bg-black/50 px-4 py-2 rounded border border-white/30"
-                   style={{ textShadow: "1px 1px 0px #000" }}>
-                PRESS SPACE OR CLICK PLAY AGAIN TO RESTART
+              {/* Loading indicator for redirect */}
+              <div className="flex flex-col items-center space-y-4">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-400"></div>
+                <div className="text-white font-bold" style={{ textShadow: "1px 1px 0px #000" }}>
+                  REDIRECTING TO REDEMPTION...
+                </div>
               </div>
             </div>
           </div>

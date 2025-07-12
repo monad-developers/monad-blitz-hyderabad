@@ -12,7 +12,6 @@ export default function RedeemPage() {
   const { wallet, sendTokens, isLoading: web3Loading, error: web3Error } = useWeb3();
   
   // Get game data from URL params
-  const score = parseInt(searchParams.get('score') || '0');
   const coins = parseInt(searchParams.get('coins') || '0');
   
   const [showWalletConnect, setShowWalletConnect] = useState(false);
@@ -28,10 +27,10 @@ export default function RedeemPage() {
 
   // Redirect if no game data
   useEffect(() => {
-    if (score === 0 && coins === 0) {
+    if (coins === 0) {
       router.push('/');
     }
-  }, [score, coins, router]);
+  }, [coins, router]);
 
   const handleRedeemCoins = async () => {
     // Check if user has any coins
@@ -133,17 +132,7 @@ export default function RedeemPage() {
               📊 YOUR STATS
             </h2>
             
-            <div className="grid grid-cols-2 gap-6">
-              <div className="bg-blue-500/20 border-2 border-blue-400 rounded-lg p-4">
-                <div className="text-3xl font-bold text-blue-400 mb-2" 
-                     style={{ textShadow: "2px 2px 0px #000" }}>
-                  {score}
-                </div>
-                <div className="text-white font-bold" style={{ textShadow: "1px 1px 0px #000" }}>
-                  FINAL SCORE
-                </div>
-              </div>
-              
+            <div className="flex justify-center">
               <div className="bg-yellow-500/20 border-2 border-yellow-400 rounded-lg p-4">
                 <div className="text-3xl font-bold text-yellow-400 mb-2" 
                      style={{ textShadow: "2px 2px 0px #000" }}>
