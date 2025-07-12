@@ -1,11 +1,58 @@
-# Monad Blitz Hyderbad Submission Process
+https://web3-smart-contract.vercel.app/
 
-1. Visit the `monad-blitz-hyderabad` repo (link [here](https://github.com/monad-developers/monad-blitz-hyderabad)) and fork it.
+# 📦 Web3 Smart Contract DApp — Number Storage
 
-<img width="1511" alt="Screenshot 2025-07-07 at 10 12 23 AM" src="https://github.com/user-attachments/assets/e8196bd5-90f7-4906-9994-2580f1b4b3ba" />
+> A beginner-friendly full-stack Web3 application built with Solidity, Hardhat, ethers.js, and plain HTML/JS.  
+> It lets users connect their wallet, set a number on-chain, and view the stored value live — all on the Sepolia Ethereum testnet.
 
-2. Give it your project name, a one-liner description, make sure you are forking `main` branch and click `Create Fork`.
+---
 
-<img width="1511" alt="Screenshot 2025-07-07 at 10 11 40 AM" src="https://github.com/user-attachments/assets/0c35b1d6-e8d1-4f8f-a1af-3bcaa476eec6" />
+## 🚀 Live Demo
 
-3. In your fork you can make all the changes you want, add code of your project, create branches, add information to `README.md`, you can change anything and everything.
+🌐 [Try it on Vercel](https://web3-smart-contract.vercel.app/)  
+🦊 Requires MetaMask + Sepolia ETH
+
+---
+
+## 🎯 Project Pitch
+
+This project demonstrates a complete end-to-end Web3 flow:
+
+- ✅ Smart contract written in Solidity
+- ✅ Deployed to Sepolia testnet using Hardhat
+- ✅ Integrated with ethers.js in a custom HTML/JS frontend
+- ✅ Live wallet connection, contract interaction, and real-time feedback
+- ✅ Hosted and deployed via Vercel
+
+The goal was to gain hands-on experience building a real decentralized app from scratch — starting from smart contract authoring to frontend integration and live deployment.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Solidity** — Smart contract development
+- **Hardhat** — Development environment & contract deployment
+- **ethers.js** — Web3 interaction from frontend
+- **HTML/CSS/JS** — Simple custom frontend
+- **MetaMask** — Wallet connection and transaction signing
+- **Vercel** — Frontend deployment
+
+---
+
+## 🧾 Smart Contract Overview
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract SimpleStorage {
+    uint256 private storedNumber;
+
+    function setNumber(uint256 _num) public {
+        storedNumber = _num;
+    }
+
+    function getNumber() public view returns (uint256) {
+        return storedNumber;
+    }
+}
