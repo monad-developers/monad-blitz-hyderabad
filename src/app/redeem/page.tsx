@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useWeb3 } from "../contexts/Web3Context";
 import WalletConnect from "../components/WalletConnect";
 import { WEB3_CONFIG } from "../lib/web3/config";
 
-export default function RedeemPage() {
+function RedeemContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { wallet, sendTokens, isLoading: web3Loading, error: web3Error } = useWeb3();
@@ -284,5 +284,55 @@ export default function RedeemPage() {
         <WalletConnect onClose={() => setShowWalletConnect(false)} />
       )}
     </div>
+  );
+}
+
+// Loading component for Suspense fallback
+function RedeemLoading() {
+  return (
+    <div 
+      className="min-h-screen relative overflow-hidden flex items-center justify-center"
+      style={{
+        backgroundImage: "url('/sprites/background-night.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        imageRendering: "pixelated"
+      }}
+    >
+      {/* Overlay for better readability */}
+      <div className="absolute inset-0 bg-black/60"></div>
+      
+      {/* Ground/Base */}
+      <div 
+        className="absolute bottom-0 left-0 w-full h-24 bg-repeat-x"
+        style={{
+          backgroundImage: "url('/sprites/base.png')",
+          backgroundSize: "auto 100%",
+          imageRendering: "pixelated"
+        }}
+      ></div>
+
+      {/* Loading Content */}
+      <div className="relative z-10 max-w-2xl mx-auto p-6">
+        <div className="bg-black/90 border-4 border-yellow-500 rounded-lg p-8 text-center font-mono"
+             style={{ 
+               boxShadow: "0 0 0 4px #000, 0 0 30px rgba(255, 255, 0, 0.3)" 
+             }}>
+          <div className="text-3xl font-bold text-yellow-400 mb-4" 
+               style={{ textShadow: "3px 3px 0px #000" }}>
+            🔄 Loading...
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function RedeemPage() {
+  return (
+    <Suspense fallback={<RedeemLoading />}>
+      <RedeemContent />
+    </Suspense>
   );
 } 
