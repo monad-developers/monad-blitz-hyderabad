@@ -2,13 +2,17 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { useWeb3 } from "../contexts/Web3Context";
+import WalletConnect from "./WalletConnect";
 
 export default function LandingPage() {
   const router = useRouter();
+  const { wallet, connectWallet, isLoading: web3Loading } = useWeb3();
   const [animationFrame, setAnimationFrame] = useState(0);
   const [tweetLink, setTweetLink] = useState("");
   const [isVerified, setIsVerified] = useState(false);
   const [showTweetSection, setShowTweetSection] = useState(false);
+  const [showWalletConnect, setShowWalletConnect] = useState(false);
   const [linkError, setLinkError] = useState("");
 
   // Predefined tweet content
@@ -58,10 +62,18 @@ export default function LandingPage() {
   }, []);
 
   const handleStartGame = () => {
+    // Check wallet connection first
+    if (!wallet.isConnected) {
+      setShowWalletConnect(true);
+      return;
+    }
+    
+    // Then check tweet verification
     if (!isVerified) {
       setShowTweetSection(true);
       return;
     }
+    
     router.push("/game");
   };
 
@@ -214,10 +226,90 @@ export default function LandingPage() {
                 </div>
               </div>
             </div>
-          </div>
+                      </div>
 
-          {/* Tweet Verification Section */}
-          {showTweetSection && !isVerified && (
+           {/* Wallet Connection Section */}
+           {!wallet.isConnected && (
+             <div className="bg-purple-500/20 border-4 border-purple-400 rounded-lg p-8 mb-8 font-mono"
+                  style={{ 
+                    boxShadow: "0 0 0 4px #000, 0 0 20px rgba(168, 85, 247, 0.3)",
+                    backdropFilter: "blur(2px)"
+                  }}>
+               <h3 className="text-3xl font-bold text-white mb-6" 
+                   style={{ textShadow: "2px 2px 0px #000" }}>
+                 💳 CONNECT YOUR WALLET!
+               </h3>
+               
+               <div className="text-lg text-white mb-6" 
+                    style={{ textShadow: "1px 1px 0px #000" }}>
+                 Connect your Web3 wallet to redeem MON tokens from your game coins!
+               </div>
+               
+               <div className="bg-black/50 border-2 border-white rounded-lg p-6 mb-6">
+                 <div className="text-white font-bold mb-4" style={{ textShadow: "1px 1px 0px #000" }}>
+                   📋 WALLET REQUIREMENTS:
+                 </div>
+                 <ul className="text-white space-y-2 text-left">
+                   <li style={{ textShadow: "1px 1px 0px #000" }}>
+                     ✅ MetaMask or compatible Web3 wallet
+                   </li>
+                   <li style={{ textShadow: "1px 1px 0px #000" }}>
+                     ✅ Connected to Monad Testnet
+                   </li>
+                   <li style={{ textShadow: "1px 1px 0px #000" }}>
+                     ✅ Ready to receive MON tokens
+                   </li>
+                 </ul>
+               </div>
+               
+               <button
+                 onClick={() => setShowWalletConnect(true)}
+                 disabled={web3Loading}
+                 className={`px-8 py-4 text-xl font-bold text-white border-4 border-white rounded-lg transform transition-all duration-200 font-mono ${
+                   web3Loading 
+                     ? 'bg-gray-600 cursor-not-allowed' 
+                     : 'bg-purple-600 hover:bg-purple-500 hover:scale-105'
+                 }`}
+                 style={{ 
+                   boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
+                   textShadow: "2px 2px 0px #000"
+                 }}
+               >
+                 {web3Loading ? '🔄 CONNECTING...' : '💳 CONNECT WALLET'}
+               </button>
+             </div>
+           )}
+
+           {/* Wallet Connected Success */}
+           {wallet.isConnected && (
+             <div className="bg-green-500/20 border-4 border-green-400 rounded-lg p-6 mb-8 font-mono"
+                  style={{ 
+                    boxShadow: "0 0 0 4px #000, 0 0 20px rgba(34, 197, 94, 0.3)",
+                    backdropFilter: "blur(2px)"
+                  }}>
+               <h3 className="text-2xl font-bold text-green-400 mb-4" 
+                   style={{ textShadow: "2px 2px 0px #000" }}>
+                 ✅ WALLET CONNECTED!
+               </h3>
+               <div className="flex items-center justify-between">
+                 <div className="text-white" style={{ textShadow: "1px 1px 0px #000" }}>
+                   <div className="font-bold">Address:</div>
+                   <div className="text-sm text-green-300">
+                     {wallet.address?.slice(0, 6)}...{wallet.address?.slice(-4)}
+                   </div>
+                 </div>
+                 <div className="text-white text-right" style={{ textShadow: "1px 1px 0px #000" }}>
+                   <div className="font-bold">Balance:</div>
+                   <div className="text-sm text-yellow-300">
+                     {parseFloat(wallet.balance).toFixed(4)} MON
+                   </div>
+                 </div>
+               </div>
+             </div>
+           )}
+
+                      {/* Tweet Verification Section */}
+           {wallet.isConnected && showTweetSection && !isVerified && (
             <div className="bg-blue-500/20 border-4 border-blue-400 rounded-lg p-8 mb-8 font-mono"
                  style={{ 
                    boxShadow: "0 0 0 4px #000, 0 0 20px rgba(59, 130, 246, 0.3)",
@@ -305,8 +397,8 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* Verification Success Message */}
-          {isVerified && (
+                     {/* Verification Success Message */}
+           {wallet.isConnected && isVerified && (
             <div className="bg-green-500/20 border-4 border-green-400 rounded-lg p-6 mb-8 font-mono"
                  style={{ 
                    boxShadow: "0 0 0 4px #000, 0 0 20px rgba(34, 197, 94, 0.3)",
@@ -323,39 +415,44 @@ export default function LandingPage() {
             </div>
           )}
 
-          {/* Start Game Button - Retro Style */}
-          <button
-            onClick={handleStartGame}
-            className={`group relative inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white border-4 border-white rounded-lg transform transition-all duration-200 font-mono ${
-              isVerified 
-                ? 'bg-green-600 hover:bg-green-500 hover:scale-105' 
-                : 'bg-gray-600 cursor-not-allowed opacity-75'
-            }`}
+                     {/* Start Game Button - Retro Style */}
+           <button
+             onClick={handleStartGame}
+             className={`group relative inline-flex items-center justify-center px-12 py-6 text-2xl font-bold text-white border-4 border-white rounded-lg transform transition-all duration-200 font-mono ${
+               wallet.isConnected && isVerified 
+                 ? 'bg-green-600 hover:bg-green-500 hover:scale-105' 
+                 : 'bg-gray-600 cursor-not-allowed opacity-75'
+             }`}
             style={{ 
               boxShadow: "0 0 0 4px #000, 0 6px 0 #333",
               textShadow: "2px 2px 0px #000"
             }}
-            onMouseDown={(e) => {
-              if (isVerified) {
-                e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
-                e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
-              }
-            }}
-            onMouseUp={(e) => {
-              if (isVerified) {
-                e.currentTarget.style.transform = "";
-                e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (isVerified) {
-                e.currentTarget.style.transform = "";
-                e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
-              }
-            }}
-          >
-            {isVerified ? '🎮 START GAME' : '🔒 TWEET TO UNLOCK'}
-          </button>
+                         onMouseDown={(e) => {
+               if (wallet.isConnected && isVerified) {
+                 e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
+                 e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
+               }
+             }}
+             onMouseUp={(e) => {
+               if (wallet.isConnected && isVerified) {
+                 e.currentTarget.style.transform = "";
+                 e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
+               }
+             }}
+             onMouseLeave={(e) => {
+               if (wallet.isConnected && isVerified) {
+                 e.currentTarget.style.transform = "";
+                 e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 6px 0 #333";
+               }
+             }}
+                     >
+             {!wallet.isConnected 
+               ? '🔒 CONNECT WALLET FIRST' 
+               : !isVerified 
+               ? '🔒 TWEET TO UNLOCK' 
+               : '🎮 START GAME'
+             }
+           </button>
 
           {/* Retro Instructions */}
           <div className="mt-8 text-white font-mono">
@@ -386,6 +483,11 @@ export default function LandingPage() {
           />
         ))}
       </div>
+
+      {/* Wallet Connect Modal */}
+      {showWalletConnect && (
+        <WalletConnect onClose={() => setShowWalletConnect(false)} />
+      )}
     </div>
   );
 } 

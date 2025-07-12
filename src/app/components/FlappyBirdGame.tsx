@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { initializeKaboom } from "./game/gameSetup";
 import { useWeb3 } from "../contexts/Web3Context";
-import WalletConnect from "./WalletConnect";
-import { WEB3_CONFIG } from "../lib/web3/config";
 
 export default function FlappyBirdGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const router = useRouter();
   const { wallet, sendTokens, isLoading: web3Loading, error: web3Error } = useWeb3();
   const [showWalletConnect, setShowWalletConnect] = useState(false);
   const [isGameLoaded, setIsGameLoaded] = useState(false);
@@ -55,60 +55,16 @@ export default function FlappyBirdGame() {
     };
   }, []);
 
-  const handleRedeemCoins = async () => {
-    // Check if user has any coins
-    if (gameState.coins < 1) {
-      setRedemptionStatus({
-        isRedeeming: false,
-        success: false,
-        error: `You need at least 1 coin to redeem!`,
-      });
-      return;
-    }
-
-    // Check if wallet is connected
-    if (!wallet.isConnected) {
-      setShowWalletConnect(true);
-      return;
-    }
-
-    // Start redemption process
-    setRedemptionStatus({
-      isRedeeming: true,
-      success: false,
+  const handleRedeemCoins = () => {
+    // Redirect to redemption page with game data
+    const searchParams = new URLSearchParams({
+      score: gameState.score.toString(),
+      coins: gameState.coins.toString(),
     });
-
-    try {
-      // Send tokens to user's wallet
-      const txHash = await sendTokens({
-        recipientAddress: wallet.address!,
-        amount: gameState.coins.toString(),
-      });
-
-      setRedemptionStatus({
-        isRedeeming: false,
-        success: true,
-        txHash,
-      });
-
-      // Reset coins after successful redemption
-      setGameState(prev => ({ ...prev, coins: 0 }));
-    } catch (error: any) {
-      setRedemptionStatus({
-        isRedeeming: false,
-        success: false,
-        error: error.message || 'Failed to redeem coins. Please try again.',
-      });
-    }
+    router.push(`/redeem?${searchParams.toString()}`);
   };
 
   const handlePlayAgain = () => {
-    // Reset redemption status
-    setRedemptionStatus({
-      isRedeeming: false,
-      success: false,
-    });
-    
     // Restart the game (this will trigger Kaboom to restart)
     if (canvasRef.current) {
       // The game restart logic is handled by Kaboom's scene management
@@ -308,23 +264,14 @@ export default function FlappyBirdGame() {
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <button
                   onClick={handleRedeemCoins}
-                  disabled={redemptionStatus.isRedeeming || gameState.coins < 1}
-                  className={`group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white border-4 border-white rounded-lg transform hover:scale-105 transition-all duration-200 font-mono pointer-events-auto ${
-                    redemptionStatus.isRedeeming 
-                      ? 'bg-gray-600 cursor-not-allowed' 
-                      : gameState.coins < 1
-                      ? 'bg-gray-600 cursor-not-allowed'
-                      : 'bg-yellow-600 hover:bg-yellow-500'
-                  }`}
+                  className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-bold text-white bg-yellow-600 border-4 border-white rounded-lg hover:bg-yellow-500 transform hover:scale-105 transition-all duration-200 font-mono pointer-events-auto"
                   style={{ 
                     boxShadow: "0 0 0 4px #000, 0 4px 0 #333",
                     textShadow: "2px 2px 0px #000"
                   }}
                   onMouseDown={(e) => {
-                    if (!redemptionStatus.isRedeeming && gameState.coins >= 1) {
-                      e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
-                      e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
-                    }
+                    e.currentTarget.style.transform = "scale(0.95) translateY(2px)";
+                    e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 2px 0 #333";
                   }}
                   onMouseUp={(e) => {
                     e.currentTarget.style.transform = "";
@@ -335,7 +282,7 @@ export default function FlappyBirdGame() {
                     e.currentTarget.style.boxShadow = "0 0 0 4px #000, 0 4px 0 #333";
                   }}
                 >
-                  {redemptionStatus.isRedeeming ? 'REDEEMING...' : 'REDEEM COINS'}
+                  REDEEM COINS
                 </button>
                 
                 <button
@@ -361,62 +308,6 @@ export default function FlappyBirdGame() {
                   PLAY AGAIN
                 </button>
               </div>
-
-              {/* Redemption Status */}
-              {redemptionStatus.success && (
-                <div className="mt-4 bg-green-500/20 border-2 border-green-400 rounded-lg p-4">
-                  <div className="text-green-400 font-bold text-center mb-2" style={{ textShadow: "1px 1px 0px #000" }}>
-                    ✅ MON SENT SUCCESSFULLY!
-                  </div>
-                  {redemptionStatus.txHash && (
-                    <div className="text-xs text-green-300 text-center">
-                      <a 
-                        href={`${WEB3_CONFIG.NETWORKS[WEB3_CONFIG.DEFAULT_NETWORK].blockExplorer}/tx/${redemptionStatus.txHash}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="underline hover:text-green-200"
-                      >
-                        View Transaction
-                      </a>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {redemptionStatus.error && (
-                <div className="mt-4 bg-red-500/20 border-2 border-red-400 rounded-lg p-4">
-                  <div className="text-red-400 font-bold text-center mb-2" style={{ textShadow: "1px 1px 0px #000" }}>
-                    ❌ REDEMPTION FAILED
-                  </div>
-                  <div className="text-xs text-red-300 text-center">
-                    {redemptionStatus.error}
-                  </div>
-                </div>
-              )}
-
-              {/* Wallet Status */}
-              {wallet.isConnected && (
-                <div className="mt-4 bg-blue-500/20 border-2 border-blue-400 rounded-lg p-3">
-                  <div className="text-blue-400 font-bold text-center text-sm" style={{ textShadow: "1px 1px 0px #000" }}>
-                    💳 WALLET CONNECTED
-                  </div>
-                  <div className="text-xs text-blue-300 text-center">
-                    {wallet.address?.slice(0, 6)}...{wallet.address?.slice(-4)}
-                  </div>
-                </div>
-              )}
-
-              {/* Redemption Requirements */}
-              {gameState.coins < 1 && (
-                <div className="mt-4 bg-yellow-500/20 border-2 border-yellow-400 rounded-lg p-3">
-                  <div className="text-yellow-400 font-bold text-center text-sm" style={{ textShadow: "1px 1px 0px #000" }}>
-                    ⚠️ COLLECT COINS TO REDEEM
-                  </div>
-                  <div className="text-xs text-yellow-300 text-center">
-                    Play the game to collect coins and redeem for MON tokens!
-                  </div>
-                </div>
-              )}
               
               <div className="text-xs text-white/70 mt-4 bg-black/50 px-4 py-2 rounded border border-white/30"
                    style={{ textShadow: "1px 1px 0px #000" }}>
@@ -435,10 +326,6 @@ export default function FlappyBirdGame() {
         </div>
       </div>
 
-      {/* Wallet Connect Modal */}
-      {showWalletConnect && (
-        <WalletConnect onClose={() => setShowWalletConnect(false)} />
-      )}
     </div>
   );
 } 

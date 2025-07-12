@@ -44,7 +44,7 @@ export function initializeKaboom(canvas: HTMLCanvasElement, updateGameState?: (s
   }
 
   // Set gravity
-  k.setGravity(1000); // Increased from 800 to make bird fall faster
+  k.setGravity(700); // Increased from 800 to make bird fall faster
 
   // Game constants
   const PIPE_MIN = 60; // Reduced from 80 to allow pipes closer to edges
